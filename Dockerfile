@@ -1,17 +1,14 @@
-# Use Node.js 20 LTS (Alpine for smaller image size)
-FROM node:20-alpine
+# Use Node.js 20 LTS
+FROM node:20
 
 # Set working directory
 WORKDIR /app
 
-# Install dependencies for native modules (bcrypt, etc.)
-RUN apk add --no-cache python3 make g++
-
-# Copy package files first (for better layer caching)
+# Copy package files
 COPY package*.json ./
 
-# Install production dependencies only
-RUN npm ci --omit=dev
+# Install dependencies
+RUN npm install --omit=dev
 
 # Copy application source code
 COPY src/ ./src/
