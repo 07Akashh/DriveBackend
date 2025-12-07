@@ -12,7 +12,7 @@ const MediaList = (info, all = false) => {
   let query = _queryFilter(info),
     project = {},
     paginate = {};
-console.log('queryqueryqueryquery',query,'queryqueryqueryquery')
+
   if (!all) {
     paginate = pagination(info);
   }

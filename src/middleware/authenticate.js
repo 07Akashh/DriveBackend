@@ -91,7 +91,9 @@ const optionalUserAuthenticatioTkn = (onlyValidFor) => {
     const token =
       authHeader && authHeader.startsWith("Bearer ")
         ? authHeader.split(" ")[1]
-        : req.cookies?.accessToken || req.get("accessToken");
+        : req.cookies?.accessToken ||
+          req.query?.token ||
+          req.get("accessToken");
 
     if (!token) {
       req.user = null;
@@ -148,7 +150,7 @@ module.exports = {
   userAuthenticateTkn,
   expireToken,
   verifyClientSecreate,
-  optionalUserAuthenticatioTkn
+  optionalUserAuthenticatioTkn,
 };
 
 //========================== Export Module End ===========================

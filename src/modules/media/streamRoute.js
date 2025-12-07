@@ -9,8 +9,8 @@ router.get("/:id/stream", [authMiddleware.optionalUserAuthenticatioTkn("all")], 
 
   const referer = req.headers.referer || req.headers.origin || "";
   const allowedOrigins = [
-    // "http://localhost:3000",
-    // "https://localhost:3000",
+    "http://localhost:3000",
+    "https://localhost:3000",
     process.env.FRONTEND_URL,
   ].filter(Boolean);
 

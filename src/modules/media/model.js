@@ -139,8 +139,8 @@ const MediaSchema = new mongoose.Schema(
       transform: function (doc, ret) {
         delete ret.fileUrl;
         delete ret.fileKey;
-        ret.streamUrl = `/proxy/media/${ret._id}/stream`;
-        ret.downloadUrl = `/proxy/media/${ret._id}/download`;
+        ret.streamUrl = `proxy/media/${ret._id}/stream`;
+        ret.downloadUrl = `proxy/media/${ret._id}/download`;
         return ret;
       },
     },
