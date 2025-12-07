@@ -16,9 +16,6 @@ RUN npm ci --only=production
 # Copy application source code
 COPY src/ ./src/
 
-# Copy Firebase admin SDK file
-COPY my-project-firebase-adminsdk.json ./
-
 # Create uploads directory
 RUN mkdir -p uploads
 
