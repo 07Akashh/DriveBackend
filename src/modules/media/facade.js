@@ -11,9 +11,9 @@ const downloadFile = (fileId, user) => {
         throw custExc.completeCustomException("file_not_found");
       }
 
-      const isOwner = media.owner.email === user?.email.toLowerCase();
+      const isOwner = media.owner.email.toLowerCase() === user?.email.toLowerCase();
       const isShared = media.sharedWith.some(
-        (share) => share.email === user?.email.toLowerCase()
+        (share) => share.email.toLowerCase() === user?.email.toLowerCase()
       );
       const isPublic = media.isPublic;
 
@@ -248,9 +248,9 @@ const getFileAccess = (fileId, user) => {
         throw custExc.completeCustomException("file_not_found");
       }
 
-      const isOwner = media?.owner?.email === user?.email.toLowerCase();
+      const isOwner = media?.owner?.email.toLowerCase() === user?.email.toLowerCase();
       const isShared = media?.sharedWith?.some(
-        (share) => share.email === user?.email.toLowerCase()
+        (share) => share.email.toLowerCase() === user?.email.toLowerCase()
       );
       const isPublic = media?.isPublic;
 
@@ -282,14 +282,14 @@ const getSecureFileStream = (fileId, user) => {
         throw custExc.completeCustomException("file_not_found");
       }
 
-      const isOwner = user && media.owner.email === user?.email.toLowerCase();
+      const isOwner = user && media.owner.email.toLowerCase() === user?.email.toLowerCase();
       const isShared =
         user &&
         media.sharedWith.some(
-          (share) => share.email === user?.email.toLowerCase()
+          (share) => share.email.toLowerCase() === user?.email.toLowerCase()
         );
       const isPublic = media.isPublic;
-
+      console.log(isOwner, isShared, isPublic);
       if (!isOwner && !isShared && !isPublic) {
         throw custExc.completeCustomException("access_denied");
       }
