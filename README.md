@@ -42,8 +42,8 @@ src/
 1. **Clone the repository**
 
    ```bash
-   git clone <repository-url>
-   cd backend
+   git clone https://github.com/07Akashh/DriveBackend
+   cd DriveBackend
    ```
 
 2. **Install dependencies**
