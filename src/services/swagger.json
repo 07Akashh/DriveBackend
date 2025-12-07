@@ -1,0 +1,553 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "CloudDrive NodeJS Backend",
+    "description": "A secure, scalable cloud storage backend API. Features real-time file uploads, file sharing, and secure streaming.",
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    },
+    "contact": {
+      "name": "CloudDrive Support",
+      "url": "https://github.com/07Akashh/DriveBackend"
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "basicAuth": {
+        "type": "http",
+        "scheme": "basic",
+        "description": "Basic Authentication for API access"
+      },
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "JWT Bearer token for user authentication"
+      }
+    },
+    "schemas": {
+      "MediaItem": {
+        "type": "object",
+        "properties": {
+          "_id": { "type": "string" },
+          "originalName": { "type": "string" },
+          "mimeType": { "type": "string" },
+          "size": { "type": "integer" },
+          "cloudinaryUrl": { "type": "string" },
+          "isPublic": { "type": "boolean" },
+          "isDeleted": { "type": "boolean" },
+          "owner": { "type": "string" },
+          "sharedWith": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/SharedUser" }
+          },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "SharedUser": {
+        "type": "object",
+        "properties": {
+          "email": { "type": "string" },
+          "permission": { "type": "string", "enum": ["view", "edit"] },
+          "expiresAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "UserProfile": {
+        "type": "object",
+        "properties": {
+          "_id": { "type": "string" },
+          "email": { "type": "string" },
+          "name": { "type": "string" },
+          "avatar": { "type": "string" },
+          "createdAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "message": { "type": "string" },
+          "code": { "type": "string" }
+        }
+      },
+      "SuccessResponse": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean" },
+          "data": { "type": "object" }
+        }
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/api/v1",
+      "description": "Local Development"
+    }
+  ],
+  "tags": [
+    { "name": "Auth", "description": "Authentication endpoints" },
+    { "name": "User", "description": "User management endpoints" },
+    { "name": "Media", "description": "File management endpoints" },
+    {
+      "name": "Proxy",
+      "description": "File streaming endpoints (No Basic Auth)"
+    }
+  ],
+  "paths": {
+    "/auth/signup": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Register a new user",
+        "security": [{ "basicAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "password", "name"],
+                "properties": {
+                  "email": { "type": "string", "format": "email" },
+                  "password": { "type": "string", "minLength": 6 },
+                  "name": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "User registered successfully" },
+          "400": { "description": "Bad request - validation error" },
+          "409": { "description": "User already exists" }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Login with email and password",
+        "security": [{ "basicAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "password"],
+                "properties": {
+                  "email": { "type": "string", "format": "email" },
+                  "password": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "token": { "type": "string" },
+                    "user": { "$ref": "#/components/schemas/UserProfile" }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "description": "Invalid credentials" }
+        }
+      }
+    },
+    "/auth/social": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Login with Firebase/Google token",
+        "security": [{ "basicAuth": [] }],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "description": "Firebase ID token",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Login successful" },
+          "401": { "description": "Invalid Firebase token" }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Logout current user",
+        "security": [{ "basicAuth": [] }, { "BearerAuth": [] }],
+        "responses": {
+          "200": { "description": "Logged out successfully" }
+        }
+      }
+    },
+    "/user/profile": {
+      "get": {
+        "tags": ["User"],
+        "summary": "Get current user profile",
+        "security": [{ "basicAuth": [] }, { "BearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "User profile",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/UserProfile" }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["User"],
+        "summary": "Update current user profile",
+        "security": [{ "basicAuth": [] }, { "BearerAuth": [] }],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "avatar": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Profile updated successfully" }
+        }
+      }
+    },
+    "/media": {
+      "get": {
+        "tags": ["Media"],
+        "summary": "List user's files",
+        "security": [{ "basicAuth": [] }, { "BearerAuth": [] }],
+        "parameters": [
+          { "name": "page", "in": "query", "schema": { "type": "integer" } },
+          { "name": "limit", "in": "query", "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of media files",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/MediaItem" }
+                    },
+                    "total": { "type": "integer" },
+                    "page": { "type": "integer" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/media/trashed": {
+      "get": {
+        "tags": ["Media"],
+        "summary": "List trashed files",
+        "security": [{ "basicAuth": [] }, { "BearerAuth": [] }],
+        "responses": {
+          "200": { "description": "List of trashed files" }
+        }
+      }
+    },
+    "/media/shared/with-me": {
+      "get": {
+        "tags": ["Media"],
+        "summary": "List files shared with current user",
+        "security": [{ "basicAuth": [] }, { "BearerAuth": [] }],
+        "responses": {
+          "200": { "description": "List of shared files" }
+        }
+      }
+    },
+    "/media/{id}": {
+      "get": {
+        "tags": ["Media"],
+        "summary": "Get file details",
+        "security": [{ "basicAuth": [] }, { "BearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "File details",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/MediaItem" }
+              }
+            }
+          },
+          "404": { "description": "File not found" }
+        }
+      },
+      "delete": {
+        "tags": ["Media"],
+        "summary": "Move file to trash",
+        "security": [{ "basicAuth": [] }, { "BearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "File moved to trash" },
+          "404": { "description": "File not found" }
+        }
+      }
+    },
+    "/media/{id}/details": {
+      "get": {
+        "tags": ["Media"],
+        "summary": "Check file access (public endpoint)",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Access information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "hasAccess": { "type": "boolean" },
+                    "isPublic": { "type": "boolean" },
+                    "isOwner": { "type": "boolean" },
+                    "permission": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/media/{id}/restore": {
+      "put": {
+        "tags": ["Media"],
+        "summary": "Restore file from trash",
+        "security": [{ "basicAuth": [] }, { "BearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "File restored" }
+        }
+      }
+    },
+    "/media/{id}/permanent": {
+      "delete": {
+        "tags": ["Media"],
+        "summary": "Permanently delete file",
+        "security": [{ "basicAuth": [] }, { "BearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "File permanently deleted" }
+        }
+      }
+    },
+    "/media/{id}/share/users": {
+      "post": {
+        "tags": ["Media"],
+        "summary": "Share file with users",
+        "security": [{ "basicAuth": [] }, { "BearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "emails": {
+                    "type": "array",
+                    "items": { "type": "string", "format": "email" }
+                  },
+                  "permission": { "type": "string", "enum": ["view", "edit"] },
+                  "expiresAt": { "type": "string", "format": "date-time" },
+                  "isPublic": { "type": "boolean" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Access updated successfully" }
+        }
+      }
+    },
+    "/media/{id}/share/user": {
+      "put": {
+        "tags": ["Media"],
+        "summary": "Edit user access",
+        "security": [{ "basicAuth": [] }, { "BearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email"],
+                "properties": {
+                  "email": { "type": "string", "format": "email" },
+                  "permission": { "type": "string", "enum": ["view", "edit"] },
+                  "expiresAt": { "type": "string", "format": "date-time" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Access updated" }
+        }
+      },
+      "delete": {
+        "tags": ["Media"],
+        "summary": "Revoke user access",
+        "security": [{ "basicAuth": [] }, { "BearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email"],
+                "properties": {
+                  "email": { "type": "string", "format": "email" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Access revoked" }
+        }
+      }
+    },
+    "/proxy/media/{id}/stream": {
+      "get": {
+        "tags": ["Proxy"],
+        "summary": "Stream file content",
+        "description": "Streams file content through the server. Validates request origin.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "File stream",
+            "content": {
+              "application/octet-stream": {
+                "schema": { "type": "string", "format": "binary" }
+              }
+            }
+          },
+          "401": { "description": "Invalid origin" },
+          "403": { "description": "Access denied" },
+          "404": { "description": "File not found" }
+        }
+      }
+    },
+    "/proxy/media/{id}/download": {
+      "get": {
+        "tags": ["Proxy"],
+        "summary": "Download file",
+        "description": "Downloads file as attachment",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "File download",
+            "content": {
+              "application/octet-stream": {
+                "schema": { "type": "string", "format": "binary" }
+              }
+            }
+          },
+          "403": { "description": "Access denied" },
+          "404": { "description": "File not found" }
+        }
+      }
+    }
+  }
+}

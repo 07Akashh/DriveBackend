@@ -1,0 +1,14 @@
+{
+  "user_update": {
+    "msg": "User Updated Successfully"
+  },
+  "todo_update": {
+    "msg": "Todo Updated Successfully"
+  },
+  "todo_create": {
+    "msg": "Todo Created Successfully"
+  },
+  "todo_delete": {
+    "msg": "Todo Deleted Successfully"
+  }
+}

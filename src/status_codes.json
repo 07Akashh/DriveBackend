@@ -1,0 +1,122 @@
+{
+  "intrnlSrvrErr": {
+    "status": 500,
+    "code": 100,
+    "msg": "Internal Server Error."
+  },
+  "unauth_access": {
+    "status": 401,
+    "code": 101,
+    "msg": "Unauthorized access."
+  },
+  "tokenGenError": {
+    "status": 401,
+    "code": 102,
+    "msg": "Error while generating access token."
+  },
+  "usr_nt_exst": {
+    "status": 404,
+    "code": 103,
+    "msg": "User Not Exists."
+  },
+  "user_already_exists": {
+    "status": 409,
+    "code": 105,
+    "msg": "User already exists with this email."
+  },
+  "no_token": {
+    "status": 404,
+    "code": 104,
+    "msg": "No Token Provided"
+  },
+  "invalid_token": {
+    "status": 404,
+    "code": 104,
+    "msg": "Invalid Token Provided"
+  },
+  "inactive_user": {
+    "status": 400,
+    "code": 104,
+    "msg": "Your account is inactive. Please contact support."
+  },
+  "deleted_user": {
+    "status": 400,
+    "code": 104,
+    "msg": "This account has been deleted."
+  },
+  "no_pass": {
+    "status": 400,
+    "code": 104,
+    "msg": "No password set. Please login with Firebase."
+  },
+  "todo_nt_found": {
+    "status": 404,
+    "code": 104,
+    "msg": "No Todo Found."
+  },
+  "file_not_found": {
+    "status": 404,
+    "code": 104,
+    "msg": "File Not Found."
+  },
+  "file_not_shared": {
+    "status": 404,
+    "code": 104,
+    "msg": "File Not Shared."
+  },
+  "file_not_deleted": {
+    "status": 404,
+    "code": 104,
+    "msg": "File Not Deleted."
+  },
+  "file_not_updated": {
+    "status": 404,
+    "code": 104,
+    "msg": "File Not Updated."
+  },
+  "file_not_moved": {
+    "status": 404,
+    "code": 104,
+    "msg": "File Not Moved."
+  },
+  "file_not_copied": {
+    "status": 404,
+    "code": 104,
+    "msg": "File Not Copied."
+  },
+  "only_owner_can_view_shares": {
+    "status": 404,
+    "code": 104,
+    "msg": "Only owner can view shares."
+  },
+  "only_owner_can_share": {
+    "status": 404,
+    "code": 104,
+    "msg": "Only owner can share files."
+  },
+  "only_owner_can_delete": {
+    "status": 404,
+    "code": 104,
+    "msg": "Only owner can delete files."
+  },
+  "only_owner_can_update": {
+    "status": 404,
+    "code": 104,
+    "msg": "Only owner can update files."
+  },
+  "only_owner_can_move": {
+    "status": 404,
+    "code": 104,
+    "msg": "Only owner can move files."
+  },
+  "only_owner_can_copy": {
+    "status": 404,
+    "code": 104,
+    "msg": "Only owner can copy files."
+  },
+  "access_denied": {
+    "status": 404,
+    "code": 104,
+    "msg": "Access Denied."
+  }
+}
