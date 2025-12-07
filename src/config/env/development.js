@@ -30,7 +30,7 @@ module.exports = {
     },
   },
   redis: {
-    server: process.env.REDIS_REVER,
+    server: process.env.REDIS_SERVER,
     port: process.env.REDIS_PORT,
     user: process.env.REDIS_USERNAME,
     pass: process.env.REDIS_PASS,
