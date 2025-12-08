@@ -18,6 +18,7 @@ A secure, scalable cloud storage backend built with Node.js, Express, and MongoD
 - **Runtime**: Node.js
 - **Framework**: Express.js
 - **Database**: MongoDB with Mongoose
+- **Cache**: Redis
 - **Authentication**: Firebase Admin SDK + JWT
 - **File Storage**: Cloudinary
 - **Real-time**: Socket.IO
@@ -37,7 +38,17 @@ src/
 └── utils/            # Helper utilities
 ```
 
-## 🔧 Installation
+## 🔧 Quick Start
+
+### Prerequisites
+
+- Node.js v18+
+- MongoDB database
+- Redis server
+- Firebase project
+- Cloudinary account
+
+### Installation
 
 1. **Clone the repository**
 
@@ -54,34 +65,11 @@ src/
 
 3. **Configure environment variables**
 
-   Create a `.env` file:
-
-   ```env
-   # Server
-   PORT=5000
-   NODE_ENV=development
-
-   # MongoDB
-   MONGO_URI=mongodb://localhost:27017/clouddrive
-
-   # Firebase (download serviceAccountKey.json from Firebase Console)
-   FIREBASE_SERVICE_ACCOUNT_PATH=./serviceAccountKey.json
-
-   # Cloudinary
-   CLOUDINARY_CLOUD_NAME=your_cloud_name
-   CLOUDINARY_API_KEY=your_api_key
-   CLOUDINARY_API_SECRET=your_api_secret
-
-   # JWT
-   JWT_SECRET=your_jwt_secret
-
-   # Basic Auth (for API protection)
-   BASIC_AUTH_USERNAME=admin
-   BASIC_AUTH_PASSWORD=password
-
-   # Frontend URL (for CORS)
-   FRONTEND_URL=http://localhost:3000
+   ```bash
+   cp .env.example .env
    ```
+
+   Edit `.env` and fill in your values. See [SETUP.md](./SETUP.md) for detailed instructions.
 
 4. **Start the server**
 
@@ -92,6 +80,31 @@ src/
    # Production
    npm start
    ```
+
+> 📖 **For detailed setup instructions**, see [setup.md](./setup.md)
+
+## ⚙️ Environment Variables
+
+| Variable                          | Description                 | Example                 |
+| --------------------------------- | --------------------------- | ----------------------- |
+| `PORT`                            | Server port                 | `8080`                  |
+| `NODE_ENV`                        | Environment                 | `development` / `prod`  |
+| `JWT_SECRET_KEY`                  | JWT signing secret          | `your-secret-key`       |
+| `JWT_EXPIRES_IN`                  | Token expiry                | `7d`                    |
+| `FIREBASE_SERVICE_ACCOUNT_BASE64` | Base64 encoded Firebase key | -                       |
+| `CLOUDINARY_CLOUD_NAME`           | Cloudinary cloud name       | -                       |
+| `CLOUDINARY_API_KEY`              | Cloudinary API key          | -                       |
+| `CLOUDINARY_API_SECRET`           | Cloudinary API secret       | -                       |
+| `MONGODB_NAME`                    | MongoDB database name       | -                       |
+| `MONGO_USERNAME`                  | MongoDB username            | -                       |
+| `MONGO_PASS`                      | MongoDB password            | -                       |
+| `REDIS_SERVER`                    | Redis host                  | -                       |
+| `REDIS_PORT`                      | Redis port                  | `6379`                  |
+| `REDIS_USERNAME`                  | Redis username              | -                       |
+| `REDIS_PASS`                      | Redis password              | -                       |
+| `BASIC_AUTH_USERNAME`             | API basic auth username     | -                       |
+| `BASIC_AUTH_PASS`                 | API basic auth password     | -                       |
+| `FRONTEND_URL`                    | Frontend URL for CORS       | `http://localhost:3000` |
 
 ## 📡 API Endpoints
 
@@ -142,11 +155,22 @@ socket.on("media:upload:chunk-received", ({ uploadedSize, chunkIndex });
 socket.on("media:upload:complete", { media });
 ```
 
+## 🐳 Docker
+
+```bash
+# Build
+docker build -t cloud-drive-backend .
+
+# Run
+docker run -d -p 8080:8080 --env-file .env cloud-drive-backend
+```
+
 ## 🔐 Security
 
 - **Basic Auth**: Protects main API endpoints
 - **Firebase Auth**: Validates user identity
 - **JWT Tokens**: Session management
+- **Rate Limiting**: Prevents abuse
 - **Origin Validation**: Stream endpoints validate request origin
 - **Secure Streaming**: Files proxied through server, Cloudinary URLs hidden
 

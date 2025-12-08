@@ -41,3 +41,4 @@ coverage/
 # Build
 dist/
 build/
+my-project-firebase-adminsdk.json
